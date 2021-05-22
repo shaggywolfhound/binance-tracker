@@ -1,0 +1,65 @@
+version: '3.1'
+
+services:
+
+    binance-web:
+        container_name: binance-web
+        image: binance-web:v1
+        build: build/binance-web
+        environment:
+            WEB_DOCUMENT_ROOT: /var/www
+            WEB_PHP_SOCKET: 0.0.0.0:9000
+        volumes:
+            - ./binance-laravel:/var/www/binance
+            - ./binance-web/vhosts/vhost.conf:/opt/docker/etc/httpd/vhost.conf:delegated
+        working_dir: /var/www
+        networks:
+            - binance-network
+        expose:
+            - "9000"
+        ports:
+            - "88:80"
+            - "444:443"
+
+    binance-sql:
+        container_name: binance-sql
+        image: binance-sql:1.0
+        build: build/binance-sql
+        environment:
+            MYSQL_DATABASE: binance-tracker
+            MYSQL_USER: fillme
+            MYSQL_PASSWORD: fillme
+            MYSQL_ROOT_PASSWORD: fillme
+        volumes:
+            - ./binance-sql/database:/var/lib/mysql
+        networks:
+            - binance-network
+        ports:
+            - "33070:3306"
+
+
+    binance-laravel:
+        container_name: binance-laravel
+        image: binance-laravel:1.0
+        build: build/binance-laravel
+        volumes:
+            - ./binance-laravel:/var/www/binance
+            - ./build/binance-laravel/php.ini:/usr/local/etc/php/php.ini
+        working_dir: /var/www/binance
+        depends_on:
+            - binance-sql
+            - binance-web
+        networks:
+            - binance-network
+        expose:
+            - "9000"
+            - "1025"
+        privileged: true
+        cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+
+
+networks:
+    binance-network:
+        driver: bridge
