@@ -25,11 +25,13 @@ services:
         container_name: binance-sql
         image: binance-sql:1.0
         build: build/binance-sql
+        env_file:
+            - ./binance-laravel/.env
         environment:
-            MYSQL_DATABASE: binance-tracker
-            MYSQL_USER: fillme
-            MYSQL_PASSWORD: fillme
-            MYSQL_ROOT_PASSWORD: fillme
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
         volumes:
             - ./binance-sql/database:/var/lib/mysql
         networks:
