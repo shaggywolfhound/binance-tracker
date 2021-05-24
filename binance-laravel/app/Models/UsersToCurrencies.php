@@ -12,6 +12,8 @@ class UsersToCurrencies extends Model
     protected $fillable = [
         'currency_id',
         'user_id',
+        'quote_currency_id',
+        'is_tracked',
     ];
 
     protected $guarded = [];

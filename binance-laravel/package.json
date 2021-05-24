@@ -17,7 +17,7 @@
         "@vue/compiler-sfc": "^3.0.5",
         "alpinejs": "^2.7.3",
         "autoprefixer": "^10.1.0",
-        "axios": "^0.21",
+        "axios": "^0.21.1",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "postcss": "^8.2.1",
@@ -27,6 +27,7 @@
         "vue-loader": "^16.1.2"
     },
     "dependencies": {
-        "jquery": "^3.6.0"
+        "jquery": "^3.6.0",
+        "js-alert": "^1.0.4"
     }
 }

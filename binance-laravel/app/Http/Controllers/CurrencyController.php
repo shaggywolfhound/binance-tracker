@@ -10,6 +10,7 @@ use Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class CurrencyController extends Controller
 {
@@ -18,6 +19,8 @@ class CurrencyController extends Controller
     private $timeStamp;
     private $signature;
     private $response;
+    //todo: remove this
+    private $id = 2;
     private $window = 5000;
 
 
@@ -30,7 +33,7 @@ class CurrencyController extends Controller
     public function index() {
 
         //get user data and currencies
-        $user = User::where('id', '=', Auth::id())
+        $user = User::where('id', '=', $this->id)
             ->with('currencies')
             ->with('userscurrencies')
             ->get()->first();
@@ -41,6 +44,25 @@ class CurrencyController extends Controller
             'user'              => $user,
             'quoteCurrencies'   => $currencies
         ]);
+    }
+
+    public function patchUserCurrencies(Request $request) {
+//        abort(400, 'Parameter must be a string and uppercase');
+        if (!is_array($request->input())) {
+            abort(400, 'data not present');
+        }
+
+        //update database
+        foreach($request->input() as $row) {
+            $userCurrencies = UsersToCurrencies::where('user_id', '=', $this->id)
+                ->where('currency_id', '=', $row['currency_id']);
+            if (!$userCurrencies->update($row)){
+                abort(400, 'failed to update database');
+            }
+        }
+
+        //return index page to axios call
+        return $this->index();
     }
 
     /**
@@ -182,7 +204,7 @@ class CurrencyController extends Controller
                 if ( count($currentCurrency) === 0 ) {
                     $userCurrency = UsersToCurrencies ::create([
                         'currency_id' => $currency->id,
-                        'user_id'     => Auth::id(),
+                        'user_id'     => $this->id,
                     ]);
                     $userCurrency -> save();
                 }

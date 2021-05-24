@@ -37,6 +37,7 @@ Route::get('/currencies/new', [CurrencyController::class, 'getCurrencies']);
 Route::get('/currencies/ticker/{symbol?}', [CurrencyController::class, 'getCurrencyTickers']);
 //not used but might be useful in the end
 Route::get('/currencies/user', [CurrencyController::class, 'getUserCurrencies']);
+Route::post('/currencies/patch', [CurrencyController::class, 'patchUserCurrencies']);
 Route::get('/tester', [CurrencyController::class, 'tester']);
 
 require __DIR__.'/auth.php';
