@@ -24,4 +24,14 @@ class UsersToCurrencies extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function currency()
+    {
+        return $this->hasOne(Currencies::class,'id', 'currency_id');
+    }
+
+    public function quotecurrency()
+    {
+        return $this->hasOne(Currencies::class, 'id','quote_currency_id');
+    }
 }

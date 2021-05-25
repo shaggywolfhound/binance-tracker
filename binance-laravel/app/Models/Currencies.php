@@ -23,4 +23,26 @@ class Currencies extends Model
         'created_at',
     ];
 
+    public function currencyusers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            UsersToCurrencies::class,
+            'currency_id',
+            'user_id',
+            'id',
+            'id');
+    }
+
+    public function quotecurrencyusers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            UsersToCurrencies::class,
+            'quote_currency_id',
+            'user_id',
+            'id',
+            'id');
+    }
+
 }

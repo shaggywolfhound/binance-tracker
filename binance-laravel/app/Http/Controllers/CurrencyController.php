@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Currencies;
 use Config;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class CurrencyController extends Controller
 {
@@ -133,27 +131,6 @@ class CurrencyController extends Controller
         return true;
     }
 
-    public function getCurrencyTickers($symbol='') {
-
-        if (!empty($symbol) && !preg_match('/^[A-Z]+$/', $symbol)) {
-            abort(400, 'Parameter must be a string and uppercase');
-        }
-
-        if (!empty($symbol)) {
-            if (!$this->sendRequest("ticker/24hr?symbol=$symbol")) {
-                abort(400, 'No response from API');
-            };
-            dd(json_decode($this->response));
-
-        } else {
-            if (!$this->sendRequest("ticker/24hr")) {
-                abort(400, 'No response from API');
-            };
-        }
-        dd(json_decode($this->response));
-
-    }
-
 
     /**
      * Not in use at the moment but gets /api/v3/account using signature etc
@@ -213,6 +190,7 @@ class CurrencyController extends Controller
         return true;
     }
 
+    //todo: must move this to a helper, duplicated code!!!
     public function sendRequest($url) {
         $apiKey = $this->binanceApi;
         try {

@@ -47,12 +47,28 @@ class User extends Authenticatable
 
     public function currencies()
     {
-        return $this->hasManyThrough(
+        return $this->belongsToMany(
             Currencies::class,
             UsersToCurrencies::class,
             'user_id',
+            'currency_id',
             'id',
+            'id')->withPivot('id', 'currency_id', 'quote_currency_id', 'is_tracked', 'created_at', 'updated_at');
+    }
+
+    public function quotecurrencies()
+    {
+        return $this->belongsToMany(
+            Currencies::class,
+            UsersToCurrencies::class,
+            'user_id',
+            'quote_currency_id',
             'id',
-            'currency_id');
+            'id')->withPivot('id', 'currency_id', 'quote_currency_id', 'is_tracked', 'created_at', 'updated_at');
+    }
+
+    public function currencytickers()
+    {
+        return $this->hasMany(CurrencyTickers::class, 'user_id', 'id');
     }
 }
