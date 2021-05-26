@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CurrencyTickers;
+use App\Models\CurrenciesTickers;
 use App\Models\UsersToCurrencies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +23,8 @@ class TickerController extends Controller
 
     public function index()
     {
-        $user = User::where('id', '=', Auth::id())
-                    ->with('currencytickers')
+        $user = User::where('id', '=', $this->id)
+                    ->with('currenciestickers')
                     ->get()->first();
 
         return view('ticker', [
@@ -32,58 +32,68 @@ class TickerController extends Controller
         ]);
     }
 
-    public function getTickers($symbol='')
+    public function getTickers()
     {
-
-        $user = User::where('id', '=', $this->id)
-                    ->with('currencies')
-                    ->whereHas('currencies', function($query) {
-                        $query->where('is_tracked', '=', 1);
-                    })
-                    ->with('quotecurrencies')
-                    ->whereHas('currencies', function($query) {
-                        $query->where('is_tracked', '=', 1);
-                    })
-                    ->get()->first();
-
+        //get all user currencies
         $userSymbols = UsersToCurrencies::where('user_id', '=', $this->id)
                     ->with('quotecurrency')
                     ->with('currency')
                     ->get();
 
+        //convert to symbols = base+quote
         $symbols = [];
         foreach ($userSymbols as $symbol) {
-            echo 'currency: '.$symbol->currency->asset;
-            echo ',';
             if (!is_null($symbol->quotecurrency)) {
-                echo 'quotecurrency:' . $symbol -> quotecurrency -> asset;
+                $symbols[] = [
+                    'symbol'                => $symbol->currency->asset.$symbol->quotecurrency->asset,
+                    'currency_id'           => $symbol->currency_id,
+                    'quote_currency_id'     => $symbol->quote_currency_id,
+                ];
             }
-            echo ';';
         }
 
-
-
-
-        if (!empty($symbol) && !preg_match('/^[A-Z]+$/', $symbol)) {
-            abort(400, 'Parameter must be a string and uppercase');
+        //check we have trackers
+        if (empty($symbols)) {
+            abort(204,'No trackers setup');
         }
 
-        if (!empty($symbol)) {
-            if (!$this->sendRequest("ticker/24hr?symbol=$symbol")) {
+        foreach ($symbols as $key => $symbol) {
+            //make sure result was a symbol
+            if (!empty($symbol['symbol']) && !preg_match('/^[A-Z]+$/', $symbol['symbol'])) {
+                abort(400, 'Symbols not returned');
+            }
+            //get data from binanace
+            if (!$this->sendRequest('ticker/24hr?symbol='.$symbol['symbol'])) {
                 abort(400, 'No response from API');
-            };
-            dd(json_decode($this->response));
-
-        } else {
-            if (!$this->sendRequest("ticker/24hr")) {
-                abort(400, 'No response from API');
-            };
+            } else {
+                $symbols[$key]['response'] = json_decode($this->response);
+                if (json_last_error() != JSON_ERROR_NONE) {
+                    Log::critical('json would not decode');
+                    abort(400, 'json would not decode');
+                }
+            }
         }
-        dd(json_decode($this->response));
+
+        //store in database
+        foreach($symbols as $symbol) {
+            $currencyTicker = CurrenciesTickers::create([
+                'user_id'               => $this->id,
+                'currency_id'           => $symbol['currency_id'],
+                'quote_currency_id'     => $symbol['quote_currency_id'],
+                'symbol'                => $symbol['symbol'],
+                'price_change'          => $symbol['response']->priceChange,
+                'last_price'            => $symbol['response']->lastPrice
+            ]);
+            $currencyTicker->save();
+        }
+
+        //navigate to currencies page
+        return redirect('ticker');
+
     }
 
 
-    //todo: must move this to a helper, duplicated code!!!
+    //TODO: must move this to a helper, duplicated code!!!
     public function sendRequest($url) {
         $apiKey = $this->binanceApi;
         try {

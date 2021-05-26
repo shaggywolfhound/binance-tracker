@@ -175,7 +175,7 @@ class CurrencyController extends Controller
                 // ***how do I connect account values to currency***
                 $currency = Currencies::where('asset', '=', $item->asset)->first();
                 //todo: need to get current user when launched within frontend
-                //!!DON@T DUPLICATE!!
+                //!!DON'T DUPLICATE!!
                 $currentCurrency = UsersToCurrencies::where('currency_id', '=', $currency->id)->get();
 
                 if ( count($currentCurrency) === 0 ) {

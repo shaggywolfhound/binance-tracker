@@ -20,15 +20,16 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {{$user}}
-                            @if(count($user->currencytickers) > 0)
+                            @if(count($user->currenciestickers) > 0)
+                            @foreach ($user->currenciestickers as $key => $ticker)
                                 <tr>
-                                    <th class="py-2" scope="row"></th>
-                                    <td class="py-2 asset"></td>
-                                    <td class="py-2 quote">stuff</td>
-                                    <td class="py-2 tracked">data</td>
-                                    <td class="py-2 first_tracked"></td>
+                                    <th class="" scope="row">{{$key+1}}</th>
+                                    <td class=" asset">{{$ticker->symbol}}</td>
+                                    <td class=" price-change">{{$ticker->price_change}}</td>
+                                    <td class=" last-price">{{$ticker->last_price}}</td>
+                                    <td class=" first_tracked">{{$ticker->updated_at->format('d-M-Y')}}</td>
                                 </tr>
+                            @endforeach
                             @else
                                 <tr>
                                     <td colspan="5">
@@ -42,6 +43,11 @@
                         </table>
                     </div>
                 </div>
+            </div>
+            <div class="flex items-center justify-end mt-4">
+                <x-button-lite src="/currency/ticker" >
+                    {{ __('Take Snapshot') }}
+                </x-button-lite>
             </div>
         </div>
     </div>

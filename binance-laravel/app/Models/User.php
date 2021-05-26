@@ -67,8 +67,8 @@ class User extends Authenticatable
             'id')->withPivot('id', 'currency_id', 'quote_currency_id', 'is_tracked', 'created_at', 'updated_at');
     }
 
-    public function currencytickers()
+    public function currenciestickers()
     {
-        return $this->hasMany(CurrencyTickers::class, 'user_id', 'id');
+        return $this->hasMany(CurrenciesTickers::class, 'user_id', 'id');
     }
 }

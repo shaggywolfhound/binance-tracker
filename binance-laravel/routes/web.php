@@ -25,17 +25,19 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    //currencies tab
     Route::get('/currencies', [CurrencyController::class, 'index'])->name('currencies');
     Route::get('/currencies/new', [CurrencyController::class, 'getCurrencies']);
     Route::get('/currencies/user', [CurrencyController::class, 'getUserCurrencies']);
     Route::post('/currencies/patch', [CurrencyController::class, 'patchUserCurrencies']);
 
+    //ticker tab
+    Route::get('/currency/ticker', [TickerController::class, 'getTickers']);
+    Route::get('/ticker', [TickerController::class, 'index'])->name('ticker');
+
 });
 
 //todo: must move these into protected and add user
-Route::get('/currency/ticker/{symbol?}', [TickerController::class, 'getTickers']);
-Route::get('/ticker', [TickerController::class, 'index'])->name('ticker');
-
 Route::post('/currencies/patch', [CurrencyController::class, 'patchUserCurrencies']);
 //not used but might be useful in the end
 Route::get('/tester', [CurrencyController::class, 'tester']);
