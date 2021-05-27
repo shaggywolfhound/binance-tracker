@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class TickerController extends Controller
 {
@@ -23,12 +24,18 @@ class TickerController extends Controller
 
     public function index()
     {
+        $error = '';
+        if (Session::has('error')) {
+            $error = Session::get('error');
+        }
+
         $user = User::where('id', '=', $this->id)
                     ->with('currenciestickers')
                     ->get()->first();
 
         return view('ticker', [
-            'user' => $user
+            'user'  => $user,
+            'error' => $error
         ]);
     }
 
@@ -66,10 +73,18 @@ class TickerController extends Controller
             if (!$this->sendRequest('ticker/24hr?symbol='.$symbol['symbol'])) {
                 abort(400, 'No response from API');
             } else {
+
                 $symbols[$key]['response'] = json_decode($this->response);
                 if (json_last_error() != JSON_ERROR_NONE) {
                     Log::critical('json would not decode');
                     abort(400, 'json would not decode');
+                }
+                //check to make sure no errors on request
+                if(property_exists($symbols[$key]['response'], 'code')) {
+                    return redirect()->back()->with(
+                        'error',
+                        'Could not get ticker ('.$symbols[$key]['symbol'].') : '.$symbols[$key]['response']->msg
+                    );
                 }
             }
         }

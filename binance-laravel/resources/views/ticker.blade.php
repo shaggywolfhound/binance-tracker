@@ -52,3 +52,12 @@
         </div>
     </div>
 </x-app-layout>
+
+@if($error)
+<script>
+    let ticker = async function() {
+        await import('../js/tickers.js');
+        tickers('{{$error}}');
+    }();
+</script>
+@endif
