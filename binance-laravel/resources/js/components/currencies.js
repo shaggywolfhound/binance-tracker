@@ -22,7 +22,8 @@ let currenciesPage = function () {
                 checkbox.parent('label').siblings('span.tooltiptext').hide();
             }
         });
-    }()
+    }
+    triggeredChange();
 
     //submit data using axios
     let submit = $('button:submit').on('click', function () {

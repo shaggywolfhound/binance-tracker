@@ -7,7 +7,6 @@
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
 //
-// import Vue from 'vue'
 __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 
 __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
